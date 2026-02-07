@@ -1,0 +1,1618 @@
+diff --git a/me/hexedhero/pp/PinataParty.java b/me/hexedhero/pp/PinataParty.java
+index 35977a8..0fd8169 100644
+--- a/me/hexedhero/pp/PinataParty.java
++++ b/me/hexedhero/pp/PinataParty.java
+@@ -21,7 +21,8 @@ import me.hexedhero.pp.objects.CumulativeReader;
+ import me.hexedhero.pp.objects.PluginParticle;
+ import me.hexedhero.pp.objects.PluginSound;
+ import me.hexedhero.pp.objects.YMLFile;
+-import me.hexedhero.pp.shaded.bstats.bukkit.Metrics;
++//import me.hexedhero.pp.shaded.bstats.bukkit.Metrics; // Luma - VineFlower decompilation
++import org.bstats.bukkit.Metrics; // Luma - VineFlower decompilation
+ import me.hexedhero.pp.tasks.SaveDataTask;
+ import me.hexedhero.pp.tasks.UpdateCheckerTask;
+ import me.hexedhero.pp.tasks.VoteReminderTask;
+@@ -33,7 +34,8 @@ import me.hexedhero.pp.utils.placeholders.BuiltInParser;
+ import me.hexedhero.pp.utils.placeholders.IPlaceholderParser;
+ import me.hexedhero.pp.utils.placeholders.PlaceholderAPIParser;
+ import net.milkbowl.vault.economy.Economy;
+-import org.apache.commons.lang.math.RandomUtils;
++//import org.apache.commons.lang.math.RandomUtils; // Luma - VineFlower decompilation
++import org.apache.commons.lang3.RandomUtils; // Luma - VineFlower decompilation
+ import org.bukkit.Bukkit;
+ import org.bukkit.Location;
+ import org.bukkit.OfflinePlayer;
+@@ -106,7 +108,10 @@ public class PinataParty extends JavaPlugin {
+    }
+ 
+    public void onEnable() {
+-      loadConfig0();
++      // Luma start - VineFlower decompilation
++      //loadConfig0();
++      reloadConfig();
++      // Luma end - VineFlower decompilation
+       long var1 = System.nanoTime();
+       Common.tellConsole(true, "Loading data...");
+       this.saveDefaultConfig();
+@@ -376,8 +381,8 @@ public class PinataParty extends JavaPlugin {
+       if (getInstance().getVotes() >= var1 && var1 != 0) {
+          getInstance().resetVotes();
+          new CommandReader("votes-reached").dispatchCommands();
+-         if (!"1107891".equals("12345") && !"1107891".isEmpty() && !"1635664771".equals("12345") && !"1635664771".isEmpty()
+-            || !(RandomUtils.nextDouble() < 0.5)) {
++         // Luma - VineFlower decompilation: I don't know what the hell the original code for this statement was
++         if (!"1107891".equals("12345") && !"1107891".isEmpty() && !"1635664771".equals("12345") && !"1635664771".isEmpty() || !(RandomUtils.nextDouble() < 0.5)) {
+             int var2 = getInstance().getConfig().getInt("auto-summon.amount");
+             if (var2 > 0) {
+                Location var3 = getInstance().getLocationFromConfig(this.getRandomSpawnLocation());
+diff --git a/me/hexedhero/pp/commands/PinataPartyCommand.java b/me/hexedhero/pp/commands/PinataPartyCommand.java
+index 148ba22..a7f4e67 100644
+--- a/me/hexedhero/pp/commands/PinataPartyCommand.java
++++ b/me/hexedhero/pp/commands/PinataPartyCommand.java
+@@ -238,22 +238,25 @@ public class PinataPartyCommand extends Command {
+                   switch (var7) {
+                      case "ADD":
+                         var1.sendMessage(ChatColor.GREEN + "Adding " + var5 + " vote(s) for " + var3[1]);
++                        final int finalVar = var5; // Luma - VineFlower decompilation
+                         Bukkit.getScheduler()
+                            .runTaskAsynchronously(
+-                              PinataParty.getInstance(), () -> PinataParty.getInstance().increaseVotes(Bukkit.getOfflinePlayer(var3[1]), var5, false)
++                              PinataParty.getInstance(), () -> PinataParty.getInstance().increaseVotes(Bukkit.getOfflinePlayer(var3[1]), finalVar, false)
+                            );
+                         break;
+                      case "REMOVE":
+                         var1.sendMessage(ChatColor.GREEN + "Removing " + var5 + " vote(s) for " + var3[1]);
++                        final int finalVar1 = var5; // Luma - VineFlower decompilation
+                         Bukkit.getScheduler()
+                            .runTaskAsynchronously(
+-                              PinataParty.getInstance(), () -> PinataParty.getInstance().decreaseVotes(Bukkit.getOfflinePlayer(var3[1]), var5)
++                              PinataParty.getInstance(), () -> PinataParty.getInstance().decreaseVotes(Bukkit.getOfflinePlayer(var3[1]), finalVar1)
+                            );
+                         break;
+                      case "SET":
+                         var1.sendMessage(ChatColor.GREEN + "Setting " + var5 + " vote(s) for " + var3[1]);
++                        final int finalVar2 = var5; // Luma - VineFlower decompilation
+                         Bukkit.getScheduler()
+-                           .runTaskAsynchronously(PinataParty.getInstance(), () -> PinataParty.getInstance().setVotes(Bukkit.getOfflinePlayer(var3[1]), var5));
++                           .runTaskAsynchronously(PinataParty.getInstance(), () -> PinataParty.getInstance().setVotes(Bukkit.getOfflinePlayer(var3[1]), finalVar2));
+                   }
+ 
+                   return true;
+@@ -303,9 +306,9 @@ public class PinataPartyCommand extends Command {
+ 
+    public List<String> tabComplete(CommandSender var1, String var2, String[] var3) {
+       if (!var1.hasPermission("pinataparty.admin")) {
+-         return null;
++         return List.of(); // Luma - VineFlower decompilation: Returning null on @NotNull method?
+       } else {
+-         ArrayList var4 = new ArrayList();
++         ArrayList<String> var4 = new ArrayList<>(); // Luma - VineFlower decompilation
+          if (var3.length == 1) {
+             var4.add("summon");
+             var4.add("spawn");
+diff --git a/me/hexedhero/pp/entities/Pinata.java b/me/hexedhero/pp/entities/Pinata.java
+index c28f8ac..578e4af 100644
+--- a/me/hexedhero/pp/entities/Pinata.java
++++ b/me/hexedhero/pp/entities/Pinata.java
+@@ -23,7 +23,8 @@ import me.hexedhero.pp.objects.CommandReader;
+ import me.hexedhero.pp.objects.PluginMessage;
+ import me.hexedhero.pp.objects.PluginSound;
+ import me.hexedhero.pp.objects.YMLFile;
+-import me.hexedhero.pp.shaded.paperlib.PaperLib;
++//import me.hexedhero.pp.shaded.paperlib.PaperLib; // Luma - VineFlower decompilation
++import io.papermc.lib.PaperLib; // Luma - VineFlower decompilation
+ import me.hexedhero.pp.utils.BossBarColorHelper;
+ import me.hexedhero.pp.utils.Common;
+ import me.hexedhero.pp.utils.GlowHelper;
+@@ -87,7 +88,7 @@ public class Pinata {
+    @NotNull
+    private EParticlesStyle particlesStyle = EParticlesStyle.SPARKS;
+    @NotNull
+-   private Color llamaColor = org.bukkit.entity.Llama.Color.WHITE;
++   private Llama.Color llamaColor = org.bukkit.entity.Llama.Color.WHITE; // Luma - VineFlower decompilation
+    @Nullable
+    private final Location spawnLocation;
+    @Nullable
+diff --git a/me/hexedhero/pp/listeners/PinataListener.java b/me/hexedhero/pp/listeners/PinataListener.java
+index 2e691db..d8ee03c 100644
+--- a/me/hexedhero/pp/listeners/PinataListener.java
++++ b/me/hexedhero/pp/listeners/PinataListener.java
+@@ -101,7 +101,7 @@ public class PinataListener implements Listener {
+                var5.remove();
+             }
+          } else {
+-            ArrayList var6 = new ArrayList();
++            ArrayList<Pinata> var6 = new ArrayList<>(); // Luma - VineFlower decompilation
+ 
+             for (Pinata var8 : PinataParty.getInstance().getPinatas()) {
+                if (var8.getEntity() != null && var8.getEntity().equals(var5)) {
+diff --git a/me/hexedhero/pp/listeners/PlayerListener.java b/me/hexedhero/pp/listeners/PlayerListener.java
+index a35b5aa..8712c36 100644
+--- a/me/hexedhero/pp/listeners/PlayerListener.java
++++ b/me/hexedhero/pp/listeners/PlayerListener.java
+@@ -5,7 +5,8 @@ import me.hexedhero.pp.entities.Pinata;
+ import me.hexedhero.pp.enums.EBarType;
+ import me.hexedhero.pp.utils.Common;
+ import me.hexedhero.pp.utils.HitHelper;
+-import org.apache.commons.lang.math.RandomUtils;
++//import org.apache.commons.lang.math.RandomUtils; // Luma - VineFlower decompilation
++import org.apache.commons.lang3.RandomUtils;
+ import org.bukkit.Sound;
+ import org.bukkit.entity.Entity;
+ import org.bukkit.entity.Firework;
+diff --git a/me/hexedhero/pp/shaded/bstats/MetricsBase.java b/me/hexedhero/pp/shaded/bstats/MetricsBase.java
+deleted file mode 100644
+index 474ec80..0000000
+--- a/me/hexedhero/pp/shaded/bstats/MetricsBase.java
++++ /dev/null
+@@ -1,228 +0,0 @@
+-package me.hexedhero.pp.shaded.bstats;
+-
+-import java.io.BufferedReader;
+-import java.io.ByteArrayOutputStream;
+-import java.io.DataOutputStream;
+-import java.io.InputStreamReader;
+-import java.net.URL;
+-import java.nio.charset.StandardCharsets;
+-import java.util.HashSet;
+-import java.util.Objects;
+-import java.util.Set;
+-import java.util.concurrent.ScheduledExecutorService;
+-import java.util.concurrent.ScheduledThreadPoolExecutor;
+-import java.util.concurrent.TimeUnit;
+-import java.util.function.BiConsumer;
+-import java.util.function.Consumer;
+-import java.util.function.Supplier;
+-import java.util.zip.GZIPOutputStream;
+-import javax.net.ssl.HttpsURLConnection;
+-import me.hexedhero.pp.shaded.bstats.charts.CustomChart;
+-import me.hexedhero.pp.shaded.bstats.json.JsonObjectBuilder;
+-
+-public class MetricsBase {
+-   public static final String METRICS_VERSION = "3.1.0";
+-   private static final String REPORT_URL = "https://bStats.org/api/v2/data/%s";
+-   private final ScheduledExecutorService scheduler;
+-   private final String platform;
+-   private final String serverUuid;
+-   private final int serviceId;
+-   private final Consumer<JsonObjectBuilder> appendPlatformDataConsumer;
+-   private final Consumer<JsonObjectBuilder> appendServiceDataConsumer;
+-   private final Consumer<Runnable> submitTaskConsumer;
+-   private final Supplier<Boolean> checkServiceEnabledSupplier;
+-   private final BiConsumer<String, Throwable> errorLogger;
+-   private final Consumer<String> infoLogger;
+-   private final boolean logErrors;
+-   private final boolean logSentData;
+-   private final boolean logResponseStatusText;
+-   private final Set<CustomChart> customCharts = new HashSet<>();
+-   private final boolean enabled;
+-
+-   public MetricsBase(
+-      String var1,
+-      String var2,
+-      int var3,
+-      boolean var4,
+-      Consumer<JsonObjectBuilder> var5,
+-      Consumer<JsonObjectBuilder> var6,
+-      Consumer<Runnable> var7,
+-      Supplier<Boolean> var8,
+-      BiConsumer<String, Throwable> var9,
+-      Consumer<String> var10,
+-      boolean var11,
+-      boolean var12,
+-      boolean var13,
+-      boolean var14
+-   ) {
+-      ScheduledThreadPoolExecutor var15 = new ScheduledThreadPoolExecutor(1, var0 -> {
+-         Thread var1x = new Thread(var0, "bStats-Metrics");
+-         var1x.setDaemon(true);
+-         return var1x;
+-      });
+-      var15.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+-      this.scheduler = var15;
+-      this.platform = var1;
+-      this.serverUuid = var2;
+-      this.serviceId = var3;
+-      this.enabled = var4;
+-      this.appendPlatformDataConsumer = var5;
+-      this.appendServiceDataConsumer = var6;
+-      this.submitTaskConsumer = var7;
+-      this.checkServiceEnabledSupplier = var8;
+-      this.errorLogger = var9;
+-      this.infoLogger = var10;
+-      this.logErrors = var11;
+-      this.logSentData = var12;
+-      this.logResponseStatusText = var13;
+-      if (!var14) {
+-         this.checkRelocation();
+-      }
+-
+-      if (var4) {
+-         this.startSubmitting();
+-      }
+-   }
+-
+-   public void addCustomChart(CustomChart var1) {
+-      this.customCharts.add(var1);
+-   }
+-
+-   public void shutdown() {
+-      this.scheduler.shutdown();
+-   }
+-
+-   private void startSubmitting() {
+-      Runnable var1 = () -> {
+-         if (this.enabled && this.checkServiceEnabledSupplier.get()) {
+-            if (this.submitTaskConsumer != null) {
+-               this.submitTaskConsumer.accept(this::submitData);
+-            } else {
+-               this.submitData();
+-            }
+-         } else {
+-            this.scheduler.shutdown();
+-         }
+-      };
+-      long var2 = (long)(60000.0 * (3.0 + Math.random() * 3.0));
+-      long var4 = (long)(60000.0 * (Math.random() * 30.0));
+-      this.scheduler.schedule(var1, var2, TimeUnit.MILLISECONDS);
+-      this.scheduler.scheduleAtFixedRate(var1, var2 + var4, 1800000L, TimeUnit.MILLISECONDS);
+-   }
+-
+-   private void submitData() {
+-      JsonObjectBuilder var1 = new JsonObjectBuilder();
+-      this.appendPlatformDataConsumer.accept(var1);
+-      JsonObjectBuilder var2 = new JsonObjectBuilder();
+-      this.appendServiceDataConsumer.accept(var2);
+-      JsonObjectBuilder.JsonObject[] var3 = this.customCharts
+-         .stream()
+-         .map(var1x -> var1x.getRequestJsonObject(this.errorLogger, this.logErrors))
+-         .filter(Objects::nonNull)
+-         .toArray(JsonObjectBuilder.JsonObject[]::new);
+-      var2.appendField("id", this.serviceId);
+-      var2.appendField("customCharts", var3);
+-      var1.appendField("service", var2.build());
+-      var1.appendField("serverUUID", this.serverUuid);
+-      var1.appendField("metricsVersion", "3.1.0");
+-      JsonObjectBuilder.JsonObject var4 = var1.build();
+-      this.scheduler.execute(() -> {
+-         try {
+-            this.sendData(var4);
+-         } catch (Exception var3x) {
+-            if (this.logErrors) {
+-               this.errorLogger.accept("Could not submit bStats metrics data", var3x);
+-            }
+-         }
+-      });
+-   }
+-
+-   private void sendData(JsonObjectBuilder.JsonObject var1) {
+-      if (this.logSentData) {
+-         this.infoLogger.accept("Sent bStats metrics data: " + var1.toString());
+-      }
+-
+-      String var2 = String.format("https://bStats.org/api/v2/data/%s", this.platform);
+-      HttpsURLConnection var3 = (HttpsURLConnection)new URL(var2).openConnection();
+-      byte[] var4 = compress(var1.toString());
+-      var3.setRequestMethod("POST");
+-      var3.addRequestProperty("Accept", "application/json");
+-      var3.addRequestProperty("Connection", "close");
+-      var3.addRequestProperty("Content-Encoding", "gzip");
+-      var3.addRequestProperty("Content-Length", String.valueOf(var4.length));
+-      var3.setRequestProperty("Content-Type", "application/json");
+-      var3.setRequestProperty("User-Agent", "Metrics-Service/1");
+-      var3.setDoOutput(true);
+-      DataOutputStream var5 = new DataOutputStream(var3.getOutputStream());
+-
+-      try {
+-         var5.write(var4);
+-      } catch (Throwable var11) {
+-         try {
+-            var5.close();
+-         } catch (Throwable var10) {
+-            var11.addSuppressed(var10);
+-         }
+-
+-         throw var11;
+-      }
+-
+-      var5.close();
+-      StringBuilder var13 = new StringBuilder();
+-      BufferedReader var6 = new BufferedReader(new InputStreamReader(var3.getInputStream()));
+-
+-      String var7;
+-      try {
+-         while ((var7 = var6.readLine()) != null) {
+-            var13.append(var7);
+-         }
+-      } catch (Throwable var12) {
+-         try {
+-            var6.close();
+-         } catch (Throwable var9) {
+-            var12.addSuppressed(var9);
+-         }
+-
+-         throw var12;
+-      }
+-
+-      var6.close();
+-      if (this.logResponseStatusText) {
+-         this.infoLogger.accept("Sent data to bStats and received response: " + var13);
+-      }
+-   }
+-
+-   private void checkRelocation() {
+-      if (System.getProperty("bstats.relocatecheck") == null || !System.getProperty("bstats.relocatecheck").equals("false")) {
+-         String var1 = new String(new byte[]{111, 114, 103, 46, 98, 115, 116, 97, 116, 115});
+-         String var2 = new String(new byte[]{121, 111, 117, 114, 46, 112, 97, 99, 107, 97, 103, 101});
+-         if (MetricsBase.class.getPackage().getName().startsWith(var1) || MetricsBase.class.getPackage().getName().startsWith(var2)) {
+-            throw new IllegalStateException("bStats Metrics class has not been relocated correctly!");
+-         }
+-      }
+-   }
+-
+-   private static byte[] compress(String var0) {
+-      if (var0 == null) {
+-         return null;
+-      } else {
+-         ByteArrayOutputStream var1 = new ByteArrayOutputStream();
+-         GZIPOutputStream var2 = new GZIPOutputStream(var1);
+-
+-         try {
+-            var2.write(var0.getBytes(StandardCharsets.UTF_8));
+-         } catch (Throwable var6) {
+-            try {
+-               var2.close();
+-            } catch (Throwable var5) {
+-               var6.addSuppressed(var5);
+-            }
+-
+-            throw var6;
+-         }
+-
+-         var2.close();
+-         return var1.toByteArray();
+-      }
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/bstats/bukkit/Metrics.java b/me/hexedhero/pp/shaded/bstats/bukkit/Metrics.java
+deleted file mode 100644
+index 1100042..0000000
+--- a/me/hexedhero/pp/shaded/bstats/bukkit/Metrics.java
++++ /dev/null
+@@ -1,108 +0,0 @@
+-package me.hexedhero.pp.shaded.bstats.bukkit;
+-
+-import java.io.File;
+-import java.io.IOException;
+-import java.lang.reflect.Method;
+-import java.util.Collection;
+-import java.util.UUID;
+-import java.util.logging.Level;
+-import me.hexedhero.pp.shaded.bstats.MetricsBase;
+-import me.hexedhero.pp.shaded.bstats.charts.CustomChart;
+-import me.hexedhero.pp.shaded.bstats.json.JsonObjectBuilder;
+-import org.bukkit.Bukkit;
+-import org.bukkit.configuration.file.YamlConfiguration;
+-import org.bukkit.entity.Player;
+-import org.bukkit.plugin.Plugin;
+-
+-public class Metrics {
+-   private final Plugin plugin;
+-   private final MetricsBase metricsBase;
+-
+-   public Metrics(Plugin var1, int var2) {
+-      this.plugin = var1;
+-      File var3 = new File(var1.getDataFolder().getParentFile(), "bStats");
+-      File var4 = new File(var3, "config.yml");
+-      YamlConfiguration var5 = YamlConfiguration.loadConfiguration(var4);
+-      if (!var5.isSet("serverUuid")) {
+-         var5.addDefault("enabled", true);
+-         var5.addDefault("serverUuid", UUID.randomUUID().toString());
+-         var5.addDefault("logFailedRequests", false);
+-         var5.addDefault("logSentData", false);
+-         var5.addDefault("logResponseStatusText", false);
+-         var5.options()
+-            .header(
+-               "bStats (https://bStats.org) collects some basic information for plugin authors, like how\nmany people use their plugin and their total player count. It's recommended to keep bStats\nenabled, but if you're not comfortable with this, you can turn this setting off. There is no\nperformance penalty associated with having metrics enabled, and data sent to bStats is fully\nanonymous."
+-            )
+-            .copyDefaults(true);
+-
+-         try {
+-            var5.save(var4);
+-         } catch (IOException var14) {
+-         }
+-      }
+-
+-      boolean var6 = var5.getBoolean("enabled", true);
+-      String var7 = var5.getString("serverUuid");
+-      boolean var8 = var5.getBoolean("logFailedRequests", false);
+-      boolean var9 = var5.getBoolean("logSentData", false);
+-      boolean var10 = var5.getBoolean("logResponseStatusText", false);
+-      boolean var11 = false;
+-
+-      try {
+-         var11 = Class.forName("io.papermc.paper.threadedregions.RegionizedServer") != null;
+-      } catch (Exception var13) {
+-      }
+-
+-      this.metricsBase = new MetricsBase(
+-         "bukkit",
+-         var7,
+-         var2,
+-         var6,
+-         this::appendPlatformData,
+-         this::appendServiceData,
+-         var11 ? null : var1x -> Bukkit.getScheduler().runTask(var1, var1x),
+-         var1::isEnabled,
+-         (var1x, var2x) -> this.plugin.getLogger().log(Level.WARNING, var1x, var2x),
+-         var1x -> this.plugin.getLogger().log(Level.INFO, var1x),
+-         var8,
+-         var9,
+-         var10,
+-         false
+-      );
+-   }
+-
+-   public void shutdown() {
+-      this.metricsBase.shutdown();
+-   }
+-
+-   public void addCustomChart(CustomChart var1) {
+-      this.metricsBase.addCustomChart(var1);
+-   }
+-
+-   private void appendPlatformData(JsonObjectBuilder var1) {
+-      var1.appendField("playerAmount", this.getPlayerAmount());
+-      var1.appendField("onlineMode", Bukkit.getOnlineMode() ? 1 : 0);
+-      var1.appendField("bukkitVersion", Bukkit.getVersion());
+-      var1.appendField("bukkitName", Bukkit.getName());
+-      var1.appendField("javaVersion", System.getProperty("java.version"));
+-      var1.appendField("osName", System.getProperty("os.name"));
+-      var1.appendField("osArch", System.getProperty("os.arch"));
+-      var1.appendField("osVersion", System.getProperty("os.version"));
+-      var1.appendField("coreCount", Runtime.getRuntime().availableProcessors());
+-   }
+-
+-   private void appendServiceData(JsonObjectBuilder var1) {
+-      var1.appendField("pluginVersion", this.plugin.getDescription().getVersion());
+-   }
+-
+-   private int getPlayerAmount() {
+-      try {
+-         Method var1 = Class.forName("org.bukkit.Server").getMethod("getOnlinePlayers");
+-         return var1.getReturnType().equals(Collection.class)
+-            ? ((Collection)var1.invoke(Bukkit.getServer())).size()
+-            : ((Player[])var1.invoke(Bukkit.getServer())).length;
+-      } catch (Exception var2) {
+-         return Bukkit.getOnlinePlayers().size();
+-      }
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/bstats/charts/CustomChart.java b/me/hexedhero/pp/shaded/bstats/charts/CustomChart.java
+deleted file mode 100644
+index 7f7ac2f..0000000
+--- a/me/hexedhero/pp/shaded/bstats/charts/CustomChart.java
++++ /dev/null
+@@ -1,40 +0,0 @@
+-package me.hexedhero.pp.shaded.bstats.charts;
+-
+-import java.util.function.BiConsumer;
+-import me.hexedhero.pp.shaded.bstats.json.JsonObjectBuilder;
+-
+-public abstract class CustomChart {
+-   private final String chartId;
+-
+-   protected CustomChart(String var1) {
+-      if (var1 == null) {
+-         throw new IllegalArgumentException("chartId must not be null");
+-      } else {
+-         this.chartId = var1;
+-      }
+-   }
+-
+-   public JsonObjectBuilder.JsonObject getRequestJsonObject(BiConsumer<String, Throwable> var1, boolean var2) {
+-      JsonObjectBuilder var3 = new JsonObjectBuilder();
+-      var3.appendField("chartId", this.chartId);
+-
+-      try {
+-         JsonObjectBuilder.JsonObject var4 = this.getChartData();
+-         if (var4 == null) {
+-            return null;
+-         }
+-
+-         var3.appendField("data", var4);
+-      } catch (Throwable var5) {
+-         if (var2) {
+-            var1.accept("Failed to get data for custom chart with id " + this.chartId, var5);
+-         }
+-
+-         return null;
+-      }
+-
+-      return var3.build();
+-   }
+-
+-   protected abstract JsonObjectBuilder.JsonObject getChartData();
+-}
+diff --git a/me/hexedhero/pp/shaded/bstats/json/JsonObjectBuilder.java b/me/hexedhero/pp/shaded/bstats/json/JsonObjectBuilder.java
+deleted file mode 100644
+index fd8103b..0000000
+--- a/me/hexedhero/pp/shaded/bstats/json/JsonObjectBuilder.java
++++ /dev/null
+@@ -1,130 +0,0 @@
+-package me.hexedhero.pp.shaded.bstats.json;
+-
+-import java.util.Arrays;
+-import java.util.stream.Collectors;
+-
+-public class JsonObjectBuilder {
+-   private StringBuilder builder = new StringBuilder();
+-   private boolean hasAtLeastOneField = false;
+-
+-   public JsonObjectBuilder() {
+-      this.builder.append("{");
+-   }
+-
+-   public JsonObjectBuilder appendNull(String var1) {
+-      this.appendFieldUnescaped(var1, "null");
+-      return this;
+-   }
+-
+-   public JsonObjectBuilder appendField(String var1, String var2) {
+-      if (var2 == null) {
+-         throw new IllegalArgumentException("JSON value must not be null");
+-      } else {
+-         this.appendFieldUnescaped(var1, "\"" + escape(var2) + "\"");
+-         return this;
+-      }
+-   }
+-
+-   public JsonObjectBuilder appendField(String var1, int var2) {
+-      this.appendFieldUnescaped(var1, String.valueOf(var2));
+-      return this;
+-   }
+-
+-   public JsonObjectBuilder appendField(String var1, JsonObjectBuilder.JsonObject var2) {
+-      if (var2 == null) {
+-         throw new IllegalArgumentException("JSON object must not be null");
+-      } else {
+-         this.appendFieldUnescaped(var1, var2.toString());
+-         return this;
+-      }
+-   }
+-
+-   public JsonObjectBuilder appendField(String var1, String[] var2) {
+-      if (var2 == null) {
+-         throw new IllegalArgumentException("JSON values must not be null");
+-      } else {
+-         String var3 = Arrays.stream(var2).map(var0 -> "\"" + escape(var0) + "\"").collect(Collectors.joining(","));
+-         this.appendFieldUnescaped(var1, "[" + var3 + "]");
+-         return this;
+-      }
+-   }
+-
+-   public JsonObjectBuilder appendField(String var1, int[] var2) {
+-      if (var2 == null) {
+-         throw new IllegalArgumentException("JSON values must not be null");
+-      } else {
+-         String var3 = Arrays.stream(var2).mapToObj(String::valueOf).collect(Collectors.joining(","));
+-         this.appendFieldUnescaped(var1, "[" + var3 + "]");
+-         return this;
+-      }
+-   }
+-
+-   public JsonObjectBuilder appendField(String var1, JsonObjectBuilder.JsonObject[] var2) {
+-      if (var2 == null) {
+-         throw new IllegalArgumentException("JSON values must not be null");
+-      } else {
+-         String var3 = Arrays.stream(var2).map(JsonObjectBuilder.JsonObject::toString).collect(Collectors.joining(","));
+-         this.appendFieldUnescaped(var1, "[" + var3 + "]");
+-         return this;
+-      }
+-   }
+-
+-   private void appendFieldUnescaped(String var1, String var2) {
+-      if (this.builder == null) {
+-         throw new IllegalStateException("JSON has already been built");
+-      } else if (var1 == null) {
+-         throw new IllegalArgumentException("JSON key must not be null");
+-      } else {
+-         if (this.hasAtLeastOneField) {
+-            this.builder.append(",");
+-         }
+-
+-         this.builder.append("\"").append(escape(var1)).append("\":").append(var2);
+-         this.hasAtLeastOneField = true;
+-      }
+-   }
+-
+-   public JsonObjectBuilder.JsonObject build() {
+-      if (this.builder == null) {
+-         throw new IllegalStateException("JSON has already been built");
+-      } else {
+-         JsonObjectBuilder.JsonObject var1 = new JsonObjectBuilder.JsonObject(this.builder.append("}").toString());
+-         this.builder = null;
+-         return var1;
+-      }
+-   }
+-
+-   private static String escape(String var0) {
+-      StringBuilder var1 = new StringBuilder();
+-
+-      for (int var2 = 0; var2 < var0.length(); var2++) {
+-         char var3 = var0.charAt(var2);
+-         if (var3 == '"') {
+-            var1.append("\\\"");
+-         } else if (var3 == '\\') {
+-            var1.append("\\\\");
+-         } else if (var3 <= 15) {
+-            var1.append("\\u000").append(Integer.toHexString(var3));
+-         } else if (var3 <= 31) {
+-            var1.append("\\u00").append(Integer.toHexString(var3));
+-         } else {
+-            var1.append(var3);
+-         }
+-      }
+-
+-      return var1.toString();
+-   }
+-
+-   public static class JsonObject {
+-      private final String value;
+-
+-      private JsonObject(String var1) {
+-         this.value = var1;
+-      }
+-
+-      @Override
+-      public String toString() {
+-         return this.value;
+-      }
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/PaperLib.java b/me/hexedhero/pp/shaded/paperlib/PaperLib.java
+deleted file mode 100644
+index db6a7d3..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/PaperLib.java
++++ /dev/null
+@@ -1,180 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib;
+-
+-import java.util.concurrent.CompletableFuture;
+-import java.util.logging.Level;
+-import java.util.logging.Logger;
+-import javax.annotation.Nonnull;
+-import me.hexedhero.pp.shaded.paperlib.environments.CraftBukkitEnvironment;
+-import me.hexedhero.pp.shaded.paperlib.environments.Environment;
+-import me.hexedhero.pp.shaded.paperlib.environments.PaperEnvironment;
+-import me.hexedhero.pp.shaded.paperlib.environments.SpigotEnvironment;
+-import me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot.BlockStateSnapshotResult;
+-import me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot.InventoryHolderSnapshotResult;
+-import org.bukkit.Chunk;
+-import org.bukkit.Location;
+-import org.bukkit.World;
+-import org.bukkit.block.Block;
+-import org.bukkit.entity.Entity;
+-import org.bukkit.entity.Player;
+-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+-import org.bukkit.inventory.Inventory;
+-import org.bukkit.plugin.Plugin;
+-
+-public class PaperLib {
+-   private static Environment ENVIRONMENT = initialize();
+-
+-   private PaperLib() {
+-   }
+-
+-   private static Environment initialize() {
+-      if (hasClass("com.destroystokyo.paper.PaperConfig") || hasClass("io.papermc.paper.configuration.Configuration")) {
+-         return new PaperEnvironment();
+-      } else {
+-         return (Environment)(hasClass("org.spigotmc.SpigotConfig") ? new SpigotEnvironment() : new CraftBukkitEnvironment());
+-      }
+-   }
+-
+-   private static boolean hasClass(String var0) {
+-      try {
+-         Class.forName(var0);
+-         return true;
+-      } catch (ClassNotFoundException var2) {
+-         return false;
+-      }
+-   }
+-
+-   @Nonnull
+-   public static Environment getEnvironment() {
+-      return ENVIRONMENT;
+-   }
+-
+-   public static void setCustomEnvironment(@Nonnull Environment var0) {
+-      ENVIRONMENT = var0;
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Boolean> teleportAsync(@Nonnull Entity var0, @Nonnull Location var1) {
+-      return ENVIRONMENT.teleport(var0, var1, TeleportCause.PLUGIN);
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Boolean> teleportAsync(@Nonnull Entity var0, @Nonnull Location var1, TeleportCause var2) {
+-      return ENVIRONMENT.teleport(var0, var1, var2);
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Chunk> getChunkAtAsync(@Nonnull Location var0) {
+-      return getChunkAtAsync(var0.getWorld(), var0.getBlockX() >> 4, var0.getBlockZ() >> 4, true);
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Chunk> getChunkAtAsync(@Nonnull Location var0, boolean var1) {
+-      return getChunkAtAsync(var0.getWorld(), var0.getBlockX() >> 4, var0.getBlockZ() >> 4, var1);
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Chunk> getChunkAtAsync(@Nonnull World var0, int var1, int var2) {
+-      return getChunkAtAsync(var0, var1, var2, true);
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Chunk> getChunkAtAsync(@Nonnull World var0, int var1, int var2, boolean var3) {
+-      return ENVIRONMENT.getChunkAtAsync(var0, var1, var2, var3, false);
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Chunk> getChunkAtAsync(@Nonnull World var0, int var1, int var2, boolean var3, boolean var4) {
+-      return ENVIRONMENT.getChunkAtAsync(var0, var1, var2, var3, var4);
+-   }
+-
+-   @Nonnull
+-   public static CompletableFuture<Chunk> getChunkAtAsyncUrgently(@Nonnull World var0, int var1, int var2, boolean var3) {
+-      return ENVIRONMENT.getChunkAtAsync(var0, var1, var2, var3, true);
+-   }
+-
+-   public static boolean isChunkGenerated(@Nonnull Location var0) {
+-      return isChunkGenerated(var0.getWorld(), var0.getBlockX() >> 4, var0.getBlockZ() >> 4);
+-   }
+-
+-   public static boolean isChunkGenerated(@Nonnull World var0, int var1, int var2) {
+-      return ENVIRONMENT.isChunkGenerated(var0, var1, var2);
+-   }
+-
+-   @Nonnull
+-   public static BlockStateSnapshotResult getBlockState(@Nonnull Block var0, boolean var1) {
+-      return ENVIRONMENT.getBlockState(var0, var1);
+-   }
+-
+-   @Nonnull
+-   public static InventoryHolderSnapshotResult getHolder(@Nonnull Inventory var0, boolean var1) {
+-      return ENVIRONMENT.getHolder(var0, var1);
+-   }
+-
+-   public static CompletableFuture<Location> getBedSpawnLocationAsync(@Nonnull Player var0, boolean var1) {
+-      return ENVIRONMENT.getBedSpawnLocationAsync(var0, var1);
+-   }
+-
+-   public static boolean isVersion(int var0) {
+-      return ENVIRONMENT.isVersion(var0);
+-   }
+-
+-   public static boolean isVersion(int var0, int var1) {
+-      return ENVIRONMENT.isVersion(var0, var1);
+-   }
+-
+-   public static int getMinecraftVersion() {
+-      return ENVIRONMENT.getMinecraftVersion();
+-   }
+-
+-   public static int getMinecraftPatchVersion() {
+-      return ENVIRONMENT.getMinecraftPatchVersion();
+-   }
+-
+-   public static int getMinecraftPreReleaseVersion() {
+-      return ENVIRONMENT.getMinecraftPreReleaseVersion();
+-   }
+-
+-   public static int getMinecraftReleaseCandidateVersion() {
+-      return ENVIRONMENT.getMinecraftReleaseCandidateVersion();
+-   }
+-
+-   public static boolean isSpigot() {
+-      return ENVIRONMENT.isSpigot();
+-   }
+-
+-   public static boolean isPaper() {
+-      return ENVIRONMENT.isPaper();
+-   }
+-
+-   public static void suggestPaper(@Nonnull Plugin var0) {
+-      suggestPaper(var0, Level.INFO);
+-   }
+-
+-   public static void suggestPaper(@Nonnull Plugin var0, @Nonnull Level var1) {
+-      if (!isPaper()) {
+-         String var2 = "paperlib.shown-benefits";
+-         String var3 = var0.getDescription().getName();
+-         Logger var4 = var0.getLogger();
+-         var4.log(var1, "====================================================");
+-         var4.log(var1, " " + var3 + " works better if you use Paper ");
+-         var4.log(var1, " as your server software. ");
+-         if (System.getProperty("paperlib.shown-benefits") == null) {
+-            System.setProperty("paperlib.shown-benefits", "1");
+-            var4.log(var1, "  ");
+-            var4.log(var1, " Paper offers significant performance improvements,");
+-            var4.log(var1, " bug fixes, security enhancements and optional");
+-            var4.log(var1, " features for server owners to enhance their server.");
+-            var4.log(var1, "  ");
+-            var4.log(var1, " Paper includes Timings v2, which is significantly");
+-            var4.log(var1, " better at diagnosing lag problems over v1.");
+-            var4.log(var1, "  ");
+-            var4.log(var1, " All of your plugins should still work, and the");
+-            var4.log(var1, " Paper community will gladly help you fix any issues.");
+-            var4.log(var1, "  ");
+-            var4.log(var1, " Join the Paper Community @ https://papermc.io");
+-         }
+-
+-         var4.log(var1, "====================================================");
+-      }
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/environments/CraftBukkitEnvironment.java b/me/hexedhero/pp/shaded/paperlib/environments/CraftBukkitEnvironment.java
+deleted file mode 100644
+index 93d274d..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/environments/CraftBukkitEnvironment.java
++++ /dev/null
+@@ -1,8 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.environments;
+-
+-public class CraftBukkitEnvironment extends Environment {
+-   @Override
+-   public String getName() {
+-      return "CraftBukkit";
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/environments/Environment.java b/me/hexedhero/pp/shaded/paperlib/environments/Environment.java
+deleted file mode 100644
+index f412da4..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/environments/Environment.java
++++ /dev/null
+@@ -1,168 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.environments;
+-
+-import java.util.Locale;
+-import java.util.concurrent.CompletableFuture;
+-import java.util.regex.MatchResult;
+-import java.util.regex.Matcher;
+-import java.util.regex.Pattern;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncchunks.AsyncChunks;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncchunks.AsyncChunksSync;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncteleport.AsyncTeleport;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncteleport.AsyncTeleportSync;
+-import me.hexedhero.pp.shaded.paperlib.features.bedspawnlocation.BedSpawnLocation;
+-import me.hexedhero.pp.shaded.paperlib.features.bedspawnlocation.BedSpawnLocationSync;
+-import me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot.BlockStateSnapshot;
+-import me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot.BlockStateSnapshotBeforeSnapshots;
+-import me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot.BlockStateSnapshotNoOption;
+-import me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot.BlockStateSnapshotResult;
+-import me.hexedhero.pp.shaded.paperlib.features.chunkisgenerated.ChunkIsGenerated;
+-import me.hexedhero.pp.shaded.paperlib.features.chunkisgenerated.ChunkIsGeneratedApiExists;
+-import me.hexedhero.pp.shaded.paperlib.features.chunkisgenerated.ChunkIsGeneratedUnknown;
+-import me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot.InventoryHolderSnapshot;
+-import me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot.InventoryHolderSnapshotBeforeSnapshots;
+-import me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot.InventoryHolderSnapshotNoOption;
+-import me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot.InventoryHolderSnapshotResult;
+-import org.bukkit.Bukkit;
+-import org.bukkit.Chunk;
+-import org.bukkit.Location;
+-import org.bukkit.World;
+-import org.bukkit.block.Block;
+-import org.bukkit.entity.Entity;
+-import org.bukkit.entity.Player;
+-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+-import org.bukkit.inventory.Inventory;
+-
+-public abstract class Environment {
+-   private final int minecraftVersion;
+-   private final int minecraftPatchVersion;
+-   private final int minecraftPreReleaseVersion;
+-   private final int minecraftReleaseCandidateVersion;
+-   protected AsyncChunks asyncChunksHandler = new AsyncChunksSync();
+-   protected AsyncTeleport asyncTeleportHandler = new AsyncTeleportSync();
+-   protected ChunkIsGenerated isGeneratedHandler = new ChunkIsGeneratedUnknown();
+-   protected BlockStateSnapshot blockStateSnapshotHandler;
+-   protected InventoryHolderSnapshot inventoryHolderSnapshotHandler;
+-   protected BedSpawnLocation bedSpawnLocationHandler = new BedSpawnLocationSync();
+-
+-   public Environment() {
+-      this(Bukkit.getVersion());
+-   }
+-
+-   Environment(String var1) {
+-      Pattern var2 = Pattern.compile("(?i)\\(MC: (\\d)\\.(\\d+)\\.?(\\d+?)?(?: (Pre-Release|Release Candidate) )?(\\d)?\\)");
+-      Matcher var3 = var2.matcher(var1);
+-      int var4 = 0;
+-      int var5 = 0;
+-      int var6 = -1;
+-      int var7 = -1;
+-      if (var3.find()) {
+-         MatchResult var8 = var3.toMatchResult();
+-
+-         try {
+-            var4 = Integer.parseInt(var8.group(2), 10);
+-         } catch (Exception var12) {
+-         }
+-
+-         if (var8.groupCount() >= 3) {
+-            try {
+-               var5 = Integer.parseInt(var8.group(3), 10);
+-            } catch (Exception var11) {
+-            }
+-         }
+-
+-         if (var8.groupCount() >= 5) {
+-            try {
+-               int var9 = Integer.parseInt(var3.group(5));
+-               if (var3.group(4).toLowerCase(Locale.ENGLISH).contains("pre")) {
+-                  var6 = var9;
+-               } else {
+-                  var7 = var9;
+-               }
+-            } catch (Exception var10) {
+-            }
+-         }
+-      }
+-
+-      this.minecraftVersion = var4;
+-      this.minecraftPatchVersion = var5;
+-      this.minecraftPreReleaseVersion = var6;
+-      this.minecraftReleaseCandidateVersion = var7;
+-      if (this.isVersion(13, 1)) {
+-         this.isGeneratedHandler = new ChunkIsGeneratedApiExists();
+-      }
+-
+-      if (!this.isVersion(12)) {
+-         this.blockStateSnapshotHandler = new BlockStateSnapshotBeforeSnapshots();
+-         this.inventoryHolderSnapshotHandler = new InventoryHolderSnapshotBeforeSnapshots();
+-      } else {
+-         this.blockStateSnapshotHandler = new BlockStateSnapshotNoOption();
+-         this.inventoryHolderSnapshotHandler = new InventoryHolderSnapshotNoOption();
+-      }
+-   }
+-
+-   public abstract String getName();
+-
+-   public CompletableFuture<Chunk> getChunkAtAsync(World var1, int var2, int var3, boolean var4) {
+-      return this.asyncChunksHandler.getChunkAtAsync(var1, var2, var3, var4, false);
+-   }
+-
+-   public CompletableFuture<Chunk> getChunkAtAsync(World var1, int var2, int var3, boolean var4, boolean var5) {
+-      return this.asyncChunksHandler.getChunkAtAsync(var1, var2, var3, var4, var5);
+-   }
+-
+-   public CompletableFuture<Chunk> getChunkAtAsyncUrgently(World var1, int var2, int var3, boolean var4) {
+-      return this.asyncChunksHandler.getChunkAtAsync(var1, var2, var3, var4, true);
+-   }
+-
+-   public CompletableFuture<Boolean> teleport(Entity var1, Location var2, TeleportCause var3) {
+-      return this.asyncTeleportHandler.teleportAsync(var1, var2, var3);
+-   }
+-
+-   public boolean isChunkGenerated(World var1, int var2, int var3) {
+-      return this.isGeneratedHandler.isChunkGenerated(var1, var2, var3);
+-   }
+-
+-   public BlockStateSnapshotResult getBlockState(Block var1, boolean var2) {
+-      return this.blockStateSnapshotHandler.getBlockState(var1, var2);
+-   }
+-
+-   public InventoryHolderSnapshotResult getHolder(Inventory var1, boolean var2) {
+-      return this.inventoryHolderSnapshotHandler.getHolder(var1, var2);
+-   }
+-
+-   public CompletableFuture<Location> getBedSpawnLocationAsync(Player var1, boolean var2) {
+-      return this.bedSpawnLocationHandler.getBedSpawnLocationAsync(var1, var2);
+-   }
+-
+-   public boolean isVersion(int var1) {
+-      return this.isVersion(var1, 0);
+-   }
+-
+-   public boolean isVersion(int var1, int var2) {
+-      return this.minecraftVersion > var1 || this.minecraftVersion >= var1 && this.minecraftPatchVersion >= var2;
+-   }
+-
+-   public int getMinecraftVersion() {
+-      return this.minecraftVersion;
+-   }
+-
+-   public int getMinecraftPatchVersion() {
+-      return this.minecraftPatchVersion;
+-   }
+-
+-   public int getMinecraftPreReleaseVersion() {
+-      return this.minecraftPreReleaseVersion;
+-   }
+-
+-   public int getMinecraftReleaseCandidateVersion() {
+-      return this.minecraftReleaseCandidateVersion;
+-   }
+-
+-   public boolean isSpigot() {
+-      return false;
+-   }
+-
+-   public boolean isPaper() {
+-      return false;
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/environments/PaperEnvironment.java b/me/hexedhero/pp/shaded/paperlib/environments/PaperEnvironment.java
+deleted file mode 100644
+index 508b0bf..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/environments/PaperEnvironment.java
++++ /dev/null
+@@ -1,55 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.environments;
+-
+-import me.hexedhero.pp.shaded.paperlib.features.asyncchunks.AsyncChunksPaper_13;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncchunks.AsyncChunksPaper_15;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncchunks.AsyncChunksPaper_9_12;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncteleport.AsyncTeleportPaper;
+-import me.hexedhero.pp.shaded.paperlib.features.asyncteleport.AsyncTeleportPaper_13;
+-import me.hexedhero.pp.shaded.paperlib.features.bedspawnlocation.BedSpawnLocationPaper;
+-import me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot.BlockStateSnapshotOptionalSnapshots;
+-import me.hexedhero.pp.shaded.paperlib.features.chunkisgenerated.ChunkIsGeneratedApiExists;
+-import me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot.InventoryHolderSnapshotOptionalSnapshots;
+-import org.bukkit.Location;
+-import org.bukkit.World;
+-import org.bukkit.entity.HumanEntity;
+-
+-public class PaperEnvironment extends SpigotEnvironment {
+-   public PaperEnvironment() {
+-      if (this.isVersion(13, 1)) {
+-         this.asyncChunksHandler = new AsyncChunksPaper_13();
+-         this.asyncTeleportHandler = new AsyncTeleportPaper_13();
+-      } else if (this.isVersion(9) && !this.isVersion(13)) {
+-         this.asyncChunksHandler = new AsyncChunksPaper_9_12();
+-         this.asyncTeleportHandler = new AsyncTeleportPaper();
+-      }
+-
+-      if (this.isVersion(12)) {
+-         this.isGeneratedHandler = new ChunkIsGeneratedApiExists();
+-         this.blockStateSnapshotHandler = new BlockStateSnapshotOptionalSnapshots();
+-      }
+-
+-      if (this.isVersion(15, 2)) {
+-         try {
+-            World.class.getDeclaredMethod("getChunkAtAsyncUrgently", Location.class);
+-            this.asyncChunksHandler = new AsyncChunksPaper_15();
+-            HumanEntity.class.getDeclaredMethod("getPotentialBedLocation");
+-            this.bedSpawnLocationHandler = new BedSpawnLocationPaper();
+-         } catch (NoSuchMethodException var2) {
+-         }
+-      }
+-
+-      if (this.isVersion(16)) {
+-         this.inventoryHolderSnapshotHandler = new InventoryHolderSnapshotOptionalSnapshots();
+-      }
+-   }
+-
+-   @Override
+-   public String getName() {
+-      return "Paper";
+-   }
+-
+-   @Override
+-   public boolean isPaper() {
+-      return true;
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/environments/SpigotEnvironment.java b/me/hexedhero/pp/shaded/paperlib/environments/SpigotEnvironment.java
+deleted file mode 100644
+index 280bcd4..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/environments/SpigotEnvironment.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.environments;
+-
+-public class SpigotEnvironment extends CraftBukkitEnvironment {
+-   @Override
+-   public String getName() {
+-      return "Spigot";
+-   }
+-
+-   @Override
+-   public boolean isSpigot() {
+-      return true;
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunks.java b/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunks.java
+deleted file mode 100644
+index ccf98b4..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunks.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncchunks;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Chunk;
+-import org.bukkit.World;
+-
+-public interface AsyncChunks {
+-   default CompletableFuture<Chunk> getChunkAtAsync(World world, int x, int z, boolean gen) {
+-      return this.getChunkAtAsync(world, x, z, gen, false);
+-   }
+-
+-   CompletableFuture<Chunk> getChunkAtAsync(World var1, int var2, int var3, boolean var4, boolean var5);
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_13.java b/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_13.java
+deleted file mode 100644
+index 06a6c06..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_13.java
++++ /dev/null
+@@ -1,12 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncchunks;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Chunk;
+-import org.bukkit.World;
+-
+-public class AsyncChunksPaper_13 implements AsyncChunks {
+-   @Override
+-   public CompletableFuture<Chunk> getChunkAtAsync(World var1, int var2, int var3, boolean var4, boolean var5) {
+-      return var1.getChunkAtAsync(var2, var3, var4);
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_15.java b/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_15.java
+deleted file mode 100644
+index af647a7..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_15.java
++++ /dev/null
+@@ -1,12 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncchunks;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Chunk;
+-import org.bukkit.World;
+-
+-public class AsyncChunksPaper_15 implements AsyncChunks {
+-   @Override
+-   public CompletableFuture<Chunk> getChunkAtAsync(World var1, int var2, int var3, boolean var4, boolean var5) {
+-      return var1.getChunkAtAsync(var2, var3, var4, var5);
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_9_12.java b/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_9_12.java
+deleted file mode 100644
+index c4285b4..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksPaper_9_12.java
++++ /dev/null
+@@ -1,22 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncchunks;
+-
+-import java.util.concurrent.CompletableFuture;
+-import me.hexedhero.pp.shaded.paperlib.PaperLib;
+-import org.bukkit.Chunk;
+-import org.bukkit.World;
+-import org.bukkit.World.ChunkLoadCallback;
+-
+-public class AsyncChunksPaper_9_12 implements AsyncChunks {
+-   @Override
+-   public CompletableFuture<Chunk> getChunkAtAsync(World var1, int var2, int var3, boolean var4, boolean var5) {
+-      CompletableFuture var6 = new CompletableFuture();
+-      if (!var4 && PaperLib.getMinecraftVersion() >= 12 && !var1.isChunkGenerated(var2, var3)) {
+-         var6.complete(null);
+-      } else {
+-         ChunkLoadCallback var7 = var6::complete;
+-         var1.getChunkAtAsync(var2, var3, var7);
+-      }
+-
+-      return var6;
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksSync.java b/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksSync.java
+deleted file mode 100644
+index 7485e59..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncchunks/AsyncChunksSync.java
++++ /dev/null
+@@ -1,15 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncchunks;
+-
+-import java.util.concurrent.CompletableFuture;
+-import me.hexedhero.pp.shaded.paperlib.PaperLib;
+-import org.bukkit.Chunk;
+-import org.bukkit.World;
+-
+-public class AsyncChunksSync implements AsyncChunks {
+-   @Override
+-   public CompletableFuture<Chunk> getChunkAtAsync(World var1, int var2, int var3, boolean var4, boolean var5) {
+-      return !var4 && !PaperLib.isChunkGenerated(var1, var2, var3)
+-         ? CompletableFuture.completedFuture(null)
+-         : CompletableFuture.completedFuture(var1.getChunkAt(var2, var3));
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleport.java b/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleport.java
+deleted file mode 100644
+index 5e79ca4..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleport.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncteleport;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Location;
+-import org.bukkit.entity.Entity;
+-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+-
+-public interface AsyncTeleport {
+-   CompletableFuture<Boolean> teleportAsync(Entity var1, Location var2, TeleportCause var3);
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportPaper.java b/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportPaper.java
+deleted file mode 100644
+index 386ec83..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportPaper.java
++++ /dev/null
+@@ -1,16 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncteleport;
+-
+-import java.util.concurrent.CompletableFuture;
+-import me.hexedhero.pp.shaded.paperlib.PaperLib;
+-import org.bukkit.Location;
+-import org.bukkit.entity.Entity;
+-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+-
+-public class AsyncTeleportPaper implements AsyncTeleport {
+-   @Override
+-   public CompletableFuture<Boolean> teleportAsync(Entity var1, Location var2, TeleportCause var3) {
+-      int var4 = var2.getBlockX() >> 4;
+-      int var5 = var2.getBlockZ() >> 4;
+-      return PaperLib.getChunkAtAsyncUrgently(var2.getWorld(), var4, var5, true).thenApply(var3x -> var1.teleport(var2, var3));
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportPaper_13.java b/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportPaper_13.java
+deleted file mode 100644
+index e6ee77c..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportPaper_13.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncteleport;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Location;
+-import org.bukkit.entity.Entity;
+-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+-
+-public class AsyncTeleportPaper_13 implements AsyncTeleport {
+-   @Override
+-   public CompletableFuture<Boolean> teleportAsync(Entity var1, Location var2, TeleportCause var3) {
+-      return var1.teleportAsync(var2, var3);
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportSync.java b/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportSync.java
+deleted file mode 100644
+index f27a296..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/asyncteleport/AsyncTeleportSync.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.asyncteleport;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Location;
+-import org.bukkit.entity.Entity;
+-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+-
+-public class AsyncTeleportSync implements AsyncTeleport {
+-   @Override
+-   public CompletableFuture<Boolean> teleportAsync(Entity var1, Location var2, TeleportCause var3) {
+-      return CompletableFuture.completedFuture(var1.teleport(var2, var3));
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocation.java b/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocation.java
+deleted file mode 100644
+index 8944801..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocation.java
++++ /dev/null
+@@ -1,9 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.bedspawnlocation;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Location;
+-import org.bukkit.entity.Player;
+-
+-public interface BedSpawnLocation {
+-   CompletableFuture<Location> getBedSpawnLocationAsync(Player var1, boolean var2);
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocationPaper.java b/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocationPaper.java
+deleted file mode 100644
+index 31ed2d2..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocationPaper.java
++++ /dev/null
+@@ -1,17 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.bedspawnlocation;
+-
+-import java.util.concurrent.CompletableFuture;
+-import me.hexedhero.pp.shaded.paperlib.PaperLib;
+-import org.bukkit.Location;
+-import org.bukkit.entity.Player;
+-
+-public class BedSpawnLocationPaper implements BedSpawnLocation {
+-   @Override
+-   public CompletableFuture<Location> getBedSpawnLocationAsync(Player var1, boolean var2) {
+-      Location var3 = var1.getPotentialBedLocation();
+-      return var3 != null && var3.getWorld() != null
+-         ? PaperLib.getChunkAtAsync(var3.getWorld(), var3.getBlockX() >> 4, var3.getBlockZ() >> 4, false, var2)
+-            .thenCompose(var1x -> CompletableFuture.completedFuture(var1.getBedSpawnLocation()))
+-         : CompletableFuture.completedFuture(null);
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocationSync.java b/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocationSync.java
+deleted file mode 100644
+index c554e34..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/bedspawnlocation/BedSpawnLocationSync.java
++++ /dev/null
+@@ -1,12 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.bedspawnlocation;
+-
+-import java.util.concurrent.CompletableFuture;
+-import org.bukkit.Location;
+-import org.bukkit.entity.Player;
+-
+-public class BedSpawnLocationSync implements BedSpawnLocation {
+-   @Override
+-   public CompletableFuture<Location> getBedSpawnLocationAsync(Player var1, boolean var2) {
+-      return CompletableFuture.completedFuture(var1.getBedSpawnLocation());
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshot.java b/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshot.java
+deleted file mode 100644
+index e17829f..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshot.java
++++ /dev/null
+@@ -1,7 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot;
+-
+-import org.bukkit.block.Block;
+-
+-public interface BlockStateSnapshot {
+-   BlockStateSnapshotResult getBlockState(Block var1, boolean var2);
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotBeforeSnapshots.java b/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotBeforeSnapshots.java
+deleted file mode 100644
+index 585e21a..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotBeforeSnapshots.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot;
+-
+-import org.bukkit.block.Block;
+-
+-public class BlockStateSnapshotBeforeSnapshots implements BlockStateSnapshot {
+-   @Override
+-   public BlockStateSnapshotResult getBlockState(Block var1, boolean var2) {
+-      return new BlockStateSnapshotResult(false, var1.getState());
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotNoOption.java b/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotNoOption.java
+deleted file mode 100644
+index a646f16..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotNoOption.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot;
+-
+-import org.bukkit.block.Block;
+-
+-public class BlockStateSnapshotNoOption implements BlockStateSnapshot {
+-   @Override
+-   public BlockStateSnapshotResult getBlockState(Block var1, boolean var2) {
+-      return new BlockStateSnapshotResult(true, var1.getState());
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotOptionalSnapshots.java b/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotOptionalSnapshots.java
+deleted file mode 100644
+index a94c3fb..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotOptionalSnapshots.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot;
+-
+-import org.bukkit.block.Block;
+-
+-public class BlockStateSnapshotOptionalSnapshots implements BlockStateSnapshot {
+-   @Override
+-   public BlockStateSnapshotResult getBlockState(Block var1, boolean var2) {
+-      return new BlockStateSnapshotResult(var2, var1.getState(var2));
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotResult.java b/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotResult.java
+deleted file mode 100644
+index cff97d4..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/blockstatesnapshot/BlockStateSnapshotResult.java
++++ /dev/null
+@@ -1,21 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.blockstatesnapshot;
+-
+-import org.bukkit.block.BlockState;
+-
+-public class BlockStateSnapshotResult {
+-   private final boolean isSnapshot;
+-   private final BlockState state;
+-
+-   public BlockStateSnapshotResult(boolean var1, BlockState var2) {
+-      this.isSnapshot = var1;
+-      this.state = var2;
+-   }
+-
+-   public boolean isSnapshot() {
+-      return this.isSnapshot;
+-   }
+-
+-   public BlockState getState() {
+-      return this.state;
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGenerated.java b/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGenerated.java
+deleted file mode 100644
+index b37b379..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGenerated.java
++++ /dev/null
+@@ -1,7 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.chunkisgenerated;
+-
+-import org.bukkit.World;
+-
+-public interface ChunkIsGenerated {
+-   boolean isChunkGenerated(World var1, int var2, int var3);
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGeneratedApiExists.java b/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGeneratedApiExists.java
+deleted file mode 100644
+index d2f1dcc..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGeneratedApiExists.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.chunkisgenerated;
+-
+-import org.bukkit.World;
+-
+-public class ChunkIsGeneratedApiExists implements ChunkIsGenerated {
+-   @Override
+-   public boolean isChunkGenerated(World var1, int var2, int var3) {
+-      return var1.isChunkGenerated(var2, var3);
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGeneratedUnknown.java b/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGeneratedUnknown.java
+deleted file mode 100644
+index 63082a3..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/chunkisgenerated/ChunkIsGeneratedUnknown.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.chunkisgenerated;
+-
+-import org.bukkit.World;
+-
+-public class ChunkIsGeneratedUnknown implements ChunkIsGenerated {
+-   @Override
+-   public boolean isChunkGenerated(World var1, int var2, int var3) {
+-      return true;
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshot.java b/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshot.java
+deleted file mode 100644
+index 9f73e3b..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshot.java
++++ /dev/null
+@@ -1,7 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot;
+-
+-import org.bukkit.inventory.Inventory;
+-
+-public interface InventoryHolderSnapshot {
+-   InventoryHolderSnapshotResult getHolder(Inventory var1, boolean var2);
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotBeforeSnapshots.java b/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotBeforeSnapshots.java
+deleted file mode 100644
+index 0ec87cf..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotBeforeSnapshots.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot;
+-
+-import org.bukkit.inventory.Inventory;
+-
+-public class InventoryHolderSnapshotBeforeSnapshots implements InventoryHolderSnapshot {
+-   @Override
+-   public InventoryHolderSnapshotResult getHolder(Inventory var1, boolean var2) {
+-      return new InventoryHolderSnapshotResult(false, var1.getHolder());
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotNoOption.java b/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotNoOption.java
+deleted file mode 100644
+index 0c74a4b..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotNoOption.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot;
+-
+-import org.bukkit.inventory.Inventory;
+-
+-public class InventoryHolderSnapshotNoOption implements InventoryHolderSnapshot {
+-   @Override
+-   public InventoryHolderSnapshotResult getHolder(Inventory var1, boolean var2) {
+-      return new InventoryHolderSnapshotResult(true, var1.getHolder());
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotOptionalSnapshots.java b/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotOptionalSnapshots.java
+deleted file mode 100644
+index d249e93..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotOptionalSnapshots.java
++++ /dev/null
+@@ -1,10 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot;
+-
+-import org.bukkit.inventory.Inventory;
+-
+-public class InventoryHolderSnapshotOptionalSnapshots implements InventoryHolderSnapshot {
+-   @Override
+-   public InventoryHolderSnapshotResult getHolder(Inventory var1, boolean var2) {
+-      return new InventoryHolderSnapshotResult(var2, var1.getHolder(var2));
+-   }
+-}
+diff --git a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotResult.java b/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotResult.java
+deleted file mode 100644
+index c1865c5..0000000
+--- a/me/hexedhero/pp/shaded/paperlib/features/inventoryholdersnapshot/InventoryHolderSnapshotResult.java
++++ /dev/null
+@@ -1,21 +0,0 @@
+-package me.hexedhero.pp.shaded.paperlib.features.inventoryholdersnapshot;
+-
+-import org.bukkit.inventory.InventoryHolder;
+-
+-public class InventoryHolderSnapshotResult {
+-   private final boolean isSnapshot;
+-   private final InventoryHolder holder;
+-
+-   public InventoryHolderSnapshotResult(boolean var1, InventoryHolder var2) {
+-      this.isSnapshot = var1;
+-      this.holder = var2;
+-   }
+-
+-   public boolean isSnapshot() {
+-      return this.isSnapshot;
+-   }
+-
+-   public InventoryHolder getHolder() {
+-      return this.holder;
+-   }
+-}
+diff --git a/me/hexedhero/pp/utils/BossBarColorHelper.java b/me/hexedhero/pp/utils/BossBarColorHelper.java
+index 740a4f7..b469885 100644
+--- a/me/hexedhero/pp/utils/BossBarColorHelper.java
++++ b/me/hexedhero/pp/utils/BossBarColorHelper.java
+@@ -8,7 +8,7 @@ public class BossBarColorHelper {
+    }
+ 
+    private static ArrayList<BossBarColorHelper.ColorName> initColorList() {
+-      ArrayList var0 = new ArrayList();
++      ArrayList<BossBarColorHelper.ColorName> var0 = new ArrayList<>(); // Luma - VineFlower decompilation
+       var0.add(new BossBarColorHelper.ColorName("BLUE", 0, 183, 236));
+       var0.add(new BossBarColorHelper.ColorName("GREEN", 29, 236, 0));
+       var0.add(new BossBarColorHelper.ColorName("PINK", 236, 0, 184));
+@@ -20,7 +20,7 @@ public class BossBarColorHelper {
+    }
+ 
+    public static String getColorNameFromRgb(int var0, int var1, int var2) {
+-      ArrayList var3 = initColorList();
++      ArrayList<BossBarColorHelper.ColorName> var3 = initColorList(); // Luma - VineFlower decompilation
+       BossBarColorHelper.ColorName var4 = null;
+       int var5 = Integer.MAX_VALUE;
+ 
+diff --git a/me/hexedhero/pp/utils/ColorHelper.java b/me/hexedhero/pp/utils/ColorHelper.java
+index 1b9c08c..2f800a1 100644
+--- a/me/hexedhero/pp/utils/ColorHelper.java
++++ b/me/hexedhero/pp/utils/ColorHelper.java
+@@ -25,7 +25,7 @@ public class ColorHelper {
+       for (Pattern var2 : HEX_PATTERNS) {
+          for (Matcher var3 = var2.matcher(var0); var3.find(); var3 = var2.matcher(var0)) {
+             ChatColor var4 = getHexColorOrClosestLegacyColor(cleanHex(var3.group()));
+-            Object var5 = var0.substring(0, var3.start());
++            String var5 = var0.substring(0, var3.start()); // Luma - VineFlower decompilation
+             String var6 = var0.substring(var3.end());
+             var0 = var5 + var4 + var6;
+          }

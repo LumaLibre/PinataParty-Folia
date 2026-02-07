@@ -15,17 +15,16 @@ build/
 # Generated/decompiled sources (not tracked - use patches instead)
 sources/generated/
 # Local libraries
-sources/*.jar
+sources/PinataParty-*.jar
+sources/PinataParty.jar
 
 # Decompiler downloads
 build/decompiler/
 
 
 # Source code
-api/
-core/
-core21/
-nms/
+*.java
+*.yml
 
 # OS files
 .DS_Store

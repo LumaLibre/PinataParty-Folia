@@ -7,35 +7,44 @@ import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 
 plugins {
-    id("java-library")
-    id("io.freefair.lombok") version "9.2.0"
+    id("java")
     id("com.gradleup.shadow") version "9.3.1"
 }
 
-// TODO: Configure
-group = "dev.lumas.decompile_patcher_template"
-version = "0.0.0"
+
+group = "me.hexedhero.pp"
+version = "2.69.3"
 
 repositories {
-    // TODO: Configure
+    mavenCentral()
+    maven("https://jitpack.io")
+    maven("https://repo.extendedclip.com/releases/")
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.william278.net/releases")
 }
 
 dependencies {
-    // TODO: Configure
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
+        isTransitive = false
+    }
+    compileOnly("com.github.NuVotifier:NuVotifier:2.7.2")
+    compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("net.william278.husksync:husksync-bukkit:3.8.7+1.21.8")
+    compileOnly(files("sources/CrackShot.jar"))
+    // Source: https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compileOnly("org.apache.commons:commons-lang3:3.20.0")
+    implementation("org.bstats:bstats-bukkit:3.1.0")
+    implementation("io.papermc:paperlib:1.0.7")
 }
 
-// TODO: Configure
 tasks {
     shadowJar {
         archiveClassifier.set("")
         archiveBaseName.set(rootProject.name)
 
-        manifest {
-            attributes(
-                "Implementation-Title" to rootProject.name,
-                "Implementation-Version" to project.version,
-            )
-        }
+        relocate("org.bstats", "me.hexedhero.pp.shaded.bstats")
+        relocate("io.papermc.lib", "me.hexedhero.pp.shaded.paperlib")
     }
 
     build {
@@ -47,20 +56,20 @@ tasks {
     }
 }
 
-// TODO: Configure
+
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-// TODO: Configure
 val decompileConfig = DecompileConfig(
-    inputJar = "sources/Decompile-Patcher-Template.jar",
+    inputJar = "sources/PinataParty-2.69.3.jar",
     packageMappings = mapOf(
-        "dev/lumas/decompile_patcher_template" to "."
+        "me/hexedhero/pp" to "."
     ),
     resourceMappings = mapOf(
         "plugin.yml" to ".",
-        //"config.yml" to "."
+        "config.yml" to ".",
+        "default" to "."
     )
 )
 
