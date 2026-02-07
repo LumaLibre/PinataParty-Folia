@@ -24,18 +24,15 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
-        isTransitive = false
-    }
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7") { isTransitive = false }
     compileOnly("com.github.NuVotifier:NuVotifier:2.7.2")
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("net.william278.husksync:husksync-bukkit:3.8.7+1.21.8")
     compileOnly(files("sources/CrackShot.jar"))
-    // Source: https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compileOnly("org.apache.commons:commons-lang3:3.20.0")
+
     implementation("org.bstats:bstats-bukkit:3.1.0")
-    implementation("io.papermc:paperlib:1.0.7")
 }
 
 tasks {
@@ -44,7 +41,6 @@ tasks {
         archiveBaseName.set(rootProject.name)
 
         relocate("org.bstats", "me.hexedhero.pp.shaded.bstats")
-        relocate("io.papermc.lib", "me.hexedhero.pp.shaded.paperlib")
     }
 
     build {
