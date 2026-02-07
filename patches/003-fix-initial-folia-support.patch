@@ -1,0 +1,39 @@
+diff --git a/me/hexedhero/pp/listeners/PlayerListener.java b/me/hexedhero/pp/listeners/PlayerListener.java
+index 8712c36..4ef0297 100644
+--- a/me/hexedhero/pp/listeners/PlayerListener.java
++++ b/me/hexedhero/pp/listeners/PlayerListener.java
+@@ -27,11 +27,11 @@ public class PlayerListener implements Listener {
+       if (!var2.hasMetadata("NPC")) {
+          for (Pinata var4 : PinataParty.getInstance().getPinatas()) {
+             if (var4.getHealthBossBar() != null && Common.shouldSeeBossBar(var4, var2, EBarType.HEALTH)) {
+-               var4.getHealthBossBar().addPlayer(var2);
++               var4.getHealthBossBar().addViewer(var2);
+             }
+ 
+             if (var4.getCountdownBossBar() != null && Common.shouldSeeBossBar(var4, var2, EBarType.COUNTDOWN)) {
+-               var4.getCountdownBossBar().addPlayer(var2);
++               var4.getCountdownBossBar().addViewer(var2);
+             }
+          }
+       }
+@@ -78,16 +78,16 @@ public class PlayerListener implements Listener {
+       if (!var2.hasMetadata("NPC")) {
+          for (Pinata var4 : PinataParty.getInstance().getPinatas()) {
+             if (var4.getHealthBossBar() != null) {
+-               var4.getHealthBossBar().removePlayer(var2);
++               var4.getHealthBossBar().removeViewer(var2);
+                if (Common.shouldSeeBossBar(var4, var2, EBarType.HEALTH)) {
+-                  var4.getHealthBossBar().addPlayer(var2);
++                  var4.getHealthBossBar().addViewer(var2);
+                }
+             }
+ 
+             if (var4.getCountdownBossBar() != null) {
+-               var4.getCountdownBossBar().removePlayer(var2);
++               var4.getCountdownBossBar().removeViewer(var2);
+                if (Common.shouldSeeBossBar(var4, var2, EBarType.COUNTDOWN)) {
+-                  var4.getCountdownBossBar().addPlayer(var2);
++                  var4.getCountdownBossBar().addViewer(var2);
+                }
+             }
+          }
