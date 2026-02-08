@@ -1,0 +1,72 @@
+diff --git a/me/hexedhero/pp/listeners/PlayerListener.java b/me/hexedhero/pp/listeners/PlayerListener.java
+index 4ef0297..cf59833 100644
+--- a/me/hexedhero/pp/listeners/PlayerListener.java
++++ b/me/hexedhero/pp/listeners/PlayerListener.java
+@@ -4,6 +4,7 @@ import me.hexedhero.pp.PinataParty;
+ import me.hexedhero.pp.entities.Pinata;
+ import me.hexedhero.pp.enums.EBarType;
+ import me.hexedhero.pp.utils.Common;
++import me.hexedhero.pp.utils.GlowHelper;
+ import me.hexedhero.pp.utils.HitHelper;
+ //import org.apache.commons.lang.math.RandomUtils; // Luma - VineFlower decompilation
+ import org.apache.commons.lang3.RandomUtils;
+@@ -25,6 +26,7 @@ public class PlayerListener implements Listener {
+    public void a(PlayerJoinEvent var1) {
+       Player var2 = var1.getPlayer();
+       if (!var2.hasMetadata("NPC")) {
++         GlowHelper.showToPlayer(var2); // Luma - Fix pinata glow colors
+          for (Pinata var4 : PinataParty.getInstance().getPinatas()) {
+             if (var4.getHealthBossBar() != null && Common.shouldSeeBossBar(var4, var2, EBarType.HEALTH)) {
+                var4.getHealthBossBar().addViewer(var2);
+@@ -62,6 +64,7 @@ public class PlayerListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void c(PlayerQuitEvent var1) {
+       HitHelper.getHitAmount().remove(var1.getPlayer().getUniqueId());
++      GlowHelper.unShowToPlayer(var1.getPlayer()); // Luma - Fix pinata glow colors
+    }
+ 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+diff --git a/me/hexedhero/pp/utils/GlowHelper.java b/me/hexedhero/pp/utils/GlowHelper.java
+index 8767678..8267cd2 100644
+--- a/me/hexedhero/pp/utils/GlowHelper.java
++++ b/me/hexedhero/pp/utils/GlowHelper.java
+@@ -11,13 +11,14 @@ import net.megavex.scoreboardlibrary.api.team.ScoreboardTeam;
+ import net.megavex.scoreboardlibrary.api.team.TeamDisplay;
+ import net.megavex.scoreboardlibrary.api.team.TeamManager;
+ import org.bukkit.entity.Entity;
++import org.bukkit.entity.Player;
+ 
+ public class GlowHelper {
+    private static final Random RANDOM = new Random();
+    private static final String SCOREBOARD_TEAM_NAME = "pp_glow_%entity_id%";
+    //private static final Scoreboard SCOREBOARD = Bukkit.getScoreboardManager().getMainScoreboard(); // Luma - Folia support
+    private static final TeamManager TEAM_MANAGER = PinataParty.getInstance().getScoreboardLibrary().createTeamManager(); // Luma - Folia support
+-   private static Map<Integer, ScoreboardTeam> teams = new HashMap<>();
++   private static Map<Integer, ScoreboardTeam> teams = new HashMap<>(); // Luma - Folia support // Luma - Fix pinata glow colors
+ 
+ 
+    private GlowHelper() {
+@@ -34,6 +35,7 @@ public class GlowHelper {
+       }
+ 
+       teams.clear();
++      TEAM_MANAGER.close(); // Luma - Fix pinata glow colors
+    }
+ 
+    public static void unregisterTeam(Entity entity) {
+@@ -74,4 +76,15 @@ public class GlowHelper {
+       }
+    }
+    // Luma end - Folia support
++
++
++   // Luma start - Fix pinata glow colors
++   public static void showToPlayer(Player player) {
++      TEAM_MANAGER.addPlayer(player);
++   }
++
++   public  static void unShowToPlayer(Player player) {
++      TEAM_MANAGER.removePlayer(player);
++   }
++   // Luma end - Fix pinata glow colors
+ }

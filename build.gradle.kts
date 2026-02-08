@@ -64,7 +64,7 @@ java {
 }
 
 val decompileConfig = DecompileConfig(
-    inputJar = "sources/PinataParty-2.69.3.jar",
+    inputJar = "sources/PinataParty.jar",
     packageMappings = mapOf(
         "me/hexedhero/pp" to "."
     ),
