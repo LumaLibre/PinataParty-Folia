@@ -13,7 +13,7 @@ plugins {
 
 
 group = "me.hexedhero.pp"
-version = "2.69.3"
+version = "2.69.3-Folia"
 
 repositories {
     mavenCentral()
@@ -33,6 +33,11 @@ dependencies {
     compileOnly("org.apache.commons:commons-lang3:3.20.0")
 
     implementation("org.bstats:bstats-bukkit:3.1.0")
+
+    val scoreboardLibraryVersion = "2.5.0"
+    implementation("net.megavex:scoreboard-library-api:$scoreboardLibraryVersion")
+    implementation("net.megavex:scoreboard-library-implementation:$scoreboardLibraryVersion")
+    implementation("net.megavex:scoreboard-library-modern:$scoreboardLibraryVersion")
 }
 
 tasks {
@@ -41,6 +46,7 @@ tasks {
         archiveBaseName.set(rootProject.name)
 
         relocate("org.bstats", "me.hexedhero.pp.shaded.bstats")
+        relocate("net.megavex", "me.hexedhero.pp.shaded.scoreboardlibrary")
     }
 
     build {

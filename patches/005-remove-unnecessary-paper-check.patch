@@ -1,0 +1,23 @@
+diff --git a/me/hexedhero/pp/utils/VersionHelper.java b/me/hexedhero/pp/utils/VersionHelper.java
+index 2fe8378..27f164f 100644
+--- a/me/hexedhero/pp/utils/VersionHelper.java
++++ b/me/hexedhero/pp/utils/VersionHelper.java
+@@ -8,7 +8,7 @@ public class VersionHelper {
+    private static final int MAJOR_VERSION_NUMBER = Integer.parseInt(parts[0]);
+    private static final int MINOR_VERSION_NUMBER = Integer.parseInt(parts[1]);
+    private static final int PATCH_VERSION_NUMBER = parts.length < 3 ? 0 : Integer.parseInt(parts[2]);
+-   private static final boolean IS_PAPER = checkPaper();
++   //private static final boolean IS_PAPER = checkPaper(); // Luma - Unnecessary paper check
+ 
+    private VersionHelper() {
+    }
+@@ -56,7 +56,8 @@ public class VersionHelper {
+    }
+ 
+    public static boolean isPaper() {
+-      return IS_PAPER;
++      //return IS_PAPER;
++      return true; // Luma - Unnecessary paper check
+    }
+ 
+    public static boolean isRunningVersionSameOrNewer(String var0) {

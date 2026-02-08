@@ -1,0 +1,284 @@
+diff --git a/me/hexedhero/pp/PinataParty.java b/me/hexedhero/pp/PinataParty.java
+index a8625f7..b02fe41 100644
+--- a/me/hexedhero/pp/PinataParty.java
++++ b/me/hexedhero/pp/PinataParty.java
+@@ -23,6 +23,9 @@ import me.hexedhero.pp.objects.PluginSound;
+ import me.hexedhero.pp.objects.YMLFile;
+ //import me.hexedhero.pp.shaded.bstats.bukkit.Metrics; // Luma - VineFlower decompilation
+ import me.hexedhero.pp.utils.ScheduleHelper;
++import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
++import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
++import net.megavex.scoreboardlibrary.api.noop.NoopScoreboardLibrary;
+ import org.bstats.bukkit.Metrics; // Luma - VineFlower decompilation
+ import me.hexedhero.pp.tasks.SaveDataTask;
+ import me.hexedhero.pp.tasks.UpdateCheckerTask;
+@@ -55,6 +58,7 @@ public class PinataParty extends JavaPlugin {
+    private int votes;
+    private long money;
+    private Economy economy;
++   private ScoreboardLibrary scoreboardLibrary; // Luma - Folia support
+ 
+    public static PinataParty getInstance() {
+       return instance;
+@@ -104,6 +108,12 @@ public class PinataParty extends JavaPlugin {
+       return this.economy;
+    }
+ 
++   // Luma start - Folia support
++   public ScoreboardLibrary getScoreboardLibrary() {
++      return scoreboardLibrary;
++   }
++   // Luma end - Folia support
++
+    public PinataParty() {
+       instance = this;
+    }
+@@ -161,6 +171,15 @@ public class PinataParty extends JavaPlugin {
+          Common.tellConsole(true, "&cVault not found! Not enabling the PinataPool! Download and install it from https://www.spigotmc.org/resources/34315/");
+       }
+ 
++      // Luma start - Folia support: Initialize ScoreboardLibrary
++      try {
++         scoreboardLibrary = ScoreboardLibrary.loadScoreboardLibrary(this);
++      } catch (NoPacketAdapterAvailableException e) {
++         scoreboardLibrary = new NoopScoreboardLibrary();
++         Common.tellConsole(true, "&cNo compatible packet adapter found for ScoreboardLibrary! Glow color features will be disabled.");
++      }
++      // Luma end - Folia support
++
+       if (Bukkit.getPluginManager().getPlugin("CrackShot") != null) {
+          Bukkit.getPluginManager().registerEvents(new CrackShotListener(), getInstance());
+          Common.tellConsole(true, "&aHooked onto CrackShot");
+@@ -221,6 +240,7 @@ public class PinataParty extends JavaPlugin {
+       GlowHelper.unregisterTeams();
+       Common.tellConsole(true, "Saving data...");
+       this.saveData();
++      scoreboardLibrary.close(); // Luma - Folia support
+       Common.tellConsole(
+          true,
+          "&aDone and disabled in %time%ms".replace("%time%", Common.nanosToMillis(System.nanoTime() - var1)),
+diff --git a/me/hexedhero/pp/entities/Pinata.java b/me/hexedhero/pp/entities/Pinata.java
+index 186c927..06dbdb7 100644
+--- a/me/hexedhero/pp/entities/Pinata.java
++++ b/me/hexedhero/pp/entities/Pinata.java
+@@ -41,6 +41,7 @@ import me.hexedhero.pp.utils.ScheduleHelper;
+ import me.hexedhero.pp.utils.VersionHelper;
+ import net.kyori.adventure.bossbar.BossBar; // Luma - Folia support: Change import to use Adventure's BossBar
+ import net.kyori.adventure.text.Component;
++import net.kyori.adventure.text.format.NamedTextColor;
+ import org.bukkit.Bukkit;
+ import org.bukkit.ChatColor;
+ import org.bukkit.Color;
+@@ -63,6 +64,7 @@ import org.bukkit.attribute.AttributeModifier.Operation;
+ //import org.bukkit.boss.BarStyle;
+ //import org.bukkit.boss.BossBar;
+ // Luma end - Folia support
++import org.bukkit.boss.BarStyle;
+ import org.bukkit.configuration.file.FileConfiguration;
+ import org.bukkit.entity.ArmorStand;
+ import org.bukkit.entity.Entity;
+@@ -286,7 +288,7 @@ public class Pinata {
+                                ? Pinata.BAR_COLORS[Pinata.RANDOM.nextInt(Pinata.BAR_COLORS.length)].toString()
+                                : Pinata.this.CONFIG_BOSS_BAR_COUNTDOWN_COLOR
+                );
+-               BossBar.Overlay bossBarStyle = BossBar.Overlay.valueOf(Pinata.this.CONFIG_BOSS_BAR_COUNTDOWN_STYLE);
++               BossBar.Overlay bossBarStyle = BossBarColorHelper.bossBarOverlayFromLegacy(Pinata.this.CONFIG_BOSS_BAR_COUNTDOWN_STYLE);
+ 
+                Pinata.this.countdownBossBar = BossBar.bossBar(title, 1.0f, bossbarColor, bossBarStyle);
+                // Luma end - Folia support
+@@ -403,6 +405,7 @@ public class Pinata {
+       this.pinata.setAdult();
+       this.pinata.setColor(this.llamaColor);
+       this.pinata.setSilent(true);
++      this.pinata.setPersistent(false); // Luma - Folia support
+ 
+       try {
+          Class<Attribute> var1 = Attribute.class;
+@@ -445,6 +448,7 @@ public class Pinata {
+       this.hologram.setGravity(false);
+       this.hologram.setCustomNameVisible(true);
+       this.hologram.setMetadata("PinataParty", new FixedMetadataValue(PinataParty.getInstance(), true));
++      this.hologram.setPersistent(false); // Luma - Folia support
+       if (this.CONFIG_BOSS_BAR_HEALTH) {
+ 
+          // Luma start - Folia support
+@@ -457,7 +461,7 @@ public class Pinata {
+                          ? BAR_COLORS[RANDOM.nextInt(BAR_COLORS.length)].toString()
+                          : this.CONFIG_BOSS_BAR_HEALTH_COLOR
+          );
+-         BossBar.Overlay bossBarStyle = BossBar.Overlay.valueOf(this.CONFIG_BOSS_BAR_HEALTH_STYLE);
++         BossBar.Overlay bossBarStyle = BossBarColorHelper.bossBarOverlayFromLegacy(this.CONFIG_BOSS_BAR_HEALTH_STYLE);
+          this.healthBossBar = BossBar.bossBar(title, 1.0f, bossbarColor, bossBarStyle);
+          // Luma end - Folia support
+ 
+@@ -733,7 +737,7 @@ public class Pinata {
+                   }
+                } else {
+                   try {
+-                     ChatColor var20 = ChatColor.valueOf(this.CONFIG_GLOW_COLOR.replace(" ", "_").toUpperCase());
++                     NamedTextColor var20 = NamedTextColor.NAMES.value(this.CONFIG_GLOW_COLOR.replace(" ", "_").toUpperCase()); // Luma - Folia support
+                      GlowHelper.setGlowing(this.pinata, var20);
+                   } catch (Exception var12) {
+                   }
+diff --git a/me/hexedhero/pp/utils/BossBarColorHelper.java b/me/hexedhero/pp/utils/BossBarColorHelper.java
+index b469885..73b3eea 100644
+--- a/me/hexedhero/pp/utils/BossBarColorHelper.java
++++ b/me/hexedhero/pp/utils/BossBarColorHelper.java
+@@ -1,5 +1,7 @@
+ package me.hexedhero.pp.utils;
+ 
++import net.kyori.adventure.bossbar.BossBar;
++
+ import java.awt.Color;
+ import java.util.ArrayList;
+ 
+@@ -50,6 +52,25 @@ public class BossBarColorHelper {
+       return getColorNameFromRgb(var0.getRed(), var0.getGreen(), var0.getBlue());
+    }
+ 
++   // Luma start - Folia support
++   public static BossBar.Overlay bossBarOverlayFromLegacy(String legacy) {
++      if (legacy == null) {
++         return BossBar.Overlay.PROGRESS;
++      }
++      try {
++         return BossBar.Overlay.valueOf(legacy.toUpperCase());
++      } catch (IllegalArgumentException ignored) {
++         return switch (legacy) {
++            case "SEGMENTED_6" -> BossBar.Overlay.NOTCHED_6;
++            case "SEGMENTED_10" -> BossBar.Overlay.NOTCHED_10;
++            case "SEGMENTED_12" -> BossBar.Overlay.NOTCHED_12;
++            case "SEGMENTED_20" -> BossBar.Overlay.NOTCHED_20;
++            default -> BossBar.Overlay.PROGRESS;
++         };
++      }
++   }
++   // Luma end - Folia support
++
+    public static class ColorName {
+       public int r;
+       public int g;
+diff --git a/me/hexedhero/pp/utils/GlowHelper.java b/me/hexedhero/pp/utils/GlowHelper.java
+index 69356d2..8767678 100644
+--- a/me/hexedhero/pp/utils/GlowHelper.java
++++ b/me/hexedhero/pp/utils/GlowHelper.java
+@@ -1,69 +1,77 @@
+ package me.hexedhero.pp.utils;
+ 
+-import java.util.Arrays;
+ import java.util.HashMap;
+ import java.util.LinkedList;
+ import java.util.Map;
+ import java.util.Random;
+-import java.util.Map.Entry;
+-import org.bukkit.Bukkit;
+-import org.bukkit.ChatColor;
++
++import me.hexedhero.pp.PinataParty;
++import net.kyori.adventure.text.format.NamedTextColor;
++import net.megavex.scoreboardlibrary.api.team.ScoreboardTeam;
++import net.megavex.scoreboardlibrary.api.team.TeamDisplay;
++import net.megavex.scoreboardlibrary.api.team.TeamManager;
+ import org.bukkit.entity.Entity;
+-import org.bukkit.scoreboard.Scoreboard;
+-import org.bukkit.scoreboard.Team;
+ 
+ public class GlowHelper {
+    private static final Random RANDOM = new Random();
+    private static final String SCOREBOARD_TEAM_NAME = "pp_glow_%entity_id%";
+-   private static final Scoreboard SCOREBOARD = Bukkit.getScoreboardManager().getMainScoreboard();
+-   private static Map<Integer, Team> teams = new HashMap<>();
++   //private static final Scoreboard SCOREBOARD = Bukkit.getScoreboardManager().getMainScoreboard(); // Luma - Folia support
++   private static final TeamManager TEAM_MANAGER = PinataParty.getInstance().getScoreboardLibrary().createTeamManager(); // Luma - Folia support
++   private static Map<Integer, ScoreboardTeam> teams = new HashMap<>();
++
+ 
+    private GlowHelper() {
+    }
+ 
+    public static void unregisterTeams() {
+-      for (Entry var1 : teams.entrySet()) {
++      // Luma - Folia support
++      for (ScoreboardTeam var1 : teams.values()) {
+          try {
+-            ((Team)var1.getValue()).unregister();
+-         } catch (Exception var3) {
++            TEAM_MANAGER.removeTeam(var1);
++         } catch (Exception ignored) {
+          }
++         // Luma end - Folia support
+       }
+ 
+       teams.clear();
+    }
+ 
+-   public static void unregisterTeam(Entity var0) {
+-      Team var1 = SCOREBOARD.getTeam("pp_glow_%entity_id%".replace("%entity_id%", Integer.toString(var0.getEntityId())));
++   public static void unregisterTeam(Entity entity) {
++      // Luma start - Folia support
++      ScoreboardTeam var1 = teams.get(entity.getEntityId());
+       if (var1 != null) {
+-         var1.unregister();
++         TEAM_MANAGER.removeTeam(var1);
+       }
++      // Luma end - Folia support
+ 
+-      teams.remove(var0.getEntityId());
++      teams.remove(entity.getEntityId());
+    }
+ 
+-   public static void setGlowing(Entity var0, ChatColor var1) {
+-      String var2 = "pp_glow_%entity_id%".replace("%entity_id%", Integer.toString(var0.getEntityId()));
+-      if (SCOREBOARD.getTeam(var2) == null) {
+-         teams.put(var0.getEntityId(), SCOREBOARD.registerNewTeam(var2));
++   // Luma start - Folia support
++   public static void setGlowing(Entity var0, NamedTextColor var1) {
++      int id = var0.getEntityId();
++      if (teams.get(id) == null) {
++         teams.put(var0.getEntityId(), TEAM_MANAGER.createIfAbsent(SCOREBOARD_TEAM_NAME.replace("%entity_id%", String.valueOf(var0.getEntityId()))));
+       }
+ 
+-      Team var3 = teams.get(var0.getEntityId());
++      ScoreboardTeam scoreboardTeam = teams.get(var0.getEntityId());
+       if (!var0.isGlowing()) {
+          var0.setGlowing(true);
+       }
+ 
+-      if (!var3.getEntries().contains(var0.getUniqueId().toString())) {
+-         var3.addEntry(var0.getUniqueId().toString());
++      TeamDisplay teamDisplay = scoreboardTeam.defaultDisplay();
++
++
++      if (!teamDisplay.entries().contains(var0.getUniqueId().toString())) {
++         teamDisplay.addEntry(var0.getUniqueId().toString());
+       }
+ 
+       if (var1 != null) {
+-         var3.setColor(var1);
++         teamDisplay.playerColor(var1);
+       } else {
+-         LinkedList var4 = new LinkedList<>(Arrays.asList(ChatColor.values()));
+-         var4.removeAll(
+-            Arrays.asList(var3.getColor(), ChatColor.BOLD, ChatColor.ITALIC, ChatColor.MAGIC, ChatColor.RESET, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE)
+-         );
+-         var3.setColor((ChatColor)var4.get(RANDOM.nextInt(var4.size())));
++         LinkedList<NamedTextColor> var4 = new LinkedList<>(NamedTextColor.NAMES.values());
++         teamDisplay.playerColor(var4.get(RANDOM.nextInt(var4.size())));
+       }
+    }
++   // Luma end - Folia support
+ }
+diff --git a/me/hexedhero/pp/utils/ScheduleHelper.java b/me/hexedhero/pp/utils/ScheduleHelper.java
+index 4229dcd..4f8ce0e 100644
+--- a/me/hexedhero/pp/utils/ScheduleHelper.java
++++ b/me/hexedhero/pp/utils/ScheduleHelper.java
+@@ -12,6 +12,9 @@ import java.util.function.Consumer;
+ 
+ public class ScheduleHelper {
+ 
++    private ScheduleHelper() {
++    }
++
+     public static void runTaskGlobal(Runnable task) {
+         Bukkit.getGlobalRegionScheduler().run(PinataParty.getInstance(), (t) -> task.run());
+     }
