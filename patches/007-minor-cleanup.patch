@@ -1,0 +1,87 @@
+diff --git a/me/hexedhero/pp/objects/PluginSound.java b/me/hexedhero/pp/objects/PluginSound.java
+index 33de7b1..60a78a5 100644
+--- a/me/hexedhero/pp/objects/PluginSound.java
++++ b/me/hexedhero/pp/objects/PluginSound.java
+@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
+ import java.lang.reflect.Method;
+ import me.hexedhero.pp.PinataParty;
+ import me.hexedhero.pp.utils.Common;
++import me.hexedhero.pp.utils.ScheduleHelper;
+ import org.bukkit.Location;
+ import org.bukkit.Sound;
+ import org.bukkit.entity.Entity;
+@@ -37,20 +38,32 @@ public class PluginSound {
+ 
+    public void send(Entity var1) {
+       if (this.sound != null) {
+-         var1.getWorld().playSound(var1.getLocation(), this.sound, this.volume, this.pitch);
++         // Luma start - Folia support
++         ScheduleHelper.runTask(var1.getLocation(), () -> {
++            var1.getWorld().playSound(var1.getLocation(), this.sound, this.volume, this.pitch);
++         });
++         // Luma end - Folia support
+       }
+    }
+ 
+    public void send(Location var1) {
+       if (this.sound != null) {
+-         var1.getWorld().playSound(var1, this.sound, this.volume, this.pitch);
++         // Luma start - Folia support
++         ScheduleHelper.runTask(var1, () -> {
++            var1.getWorld().playSound(var1, this.sound, this.volume, this.pitch);
++         });
++         // Luma end - Folia support
+       }
+    }
+ 
+    public void send(Player var1, boolean var2) {
+       if (this.sound != null) {
+          if (var2) {
+-            var1.getWorld().playSound(var1.getLocation(), this.sound, this.volume, this.pitch);
++            // Luma start - Folia support
++            ScheduleHelper.runTask(var1.getLocation(), () -> {
++               var1.getWorld().playSound(var1.getLocation(), this.sound, this.volume, this.pitch);
++            });
++            // Luma end - Folia support
+          } else {
+             var1.playSound(var1.getLocation(), this.sound, this.volume, this.pitch);
+          }
+diff --git a/me/hexedhero/pp/utils/GlowHelper.java b/me/hexedhero/pp/utils/GlowHelper.java
+index 8267cd2..08bcfc6 100644
+--- a/me/hexedhero/pp/utils/GlowHelper.java
++++ b/me/hexedhero/pp/utils/GlowHelper.java
+@@ -19,6 +19,8 @@ public class GlowHelper {
+    //private static final Scoreboard SCOREBOARD = Bukkit.getScoreboardManager().getMainScoreboard(); // Luma - Folia support
+    private static final TeamManager TEAM_MANAGER = PinataParty.getInstance().getScoreboardLibrary().createTeamManager(); // Luma - Folia support
+    private static Map<Integer, ScoreboardTeam> teams = new HashMap<>(); // Luma - Folia support // Luma - Fix pinata glow colors
++   private static final NamedTextColor[] COLORS = NamedTextColor.NAMES.values().toArray(new NamedTextColor[0]); // Luma - Minor cleanup
++
+ 
+ 
+    private GlowHelper() {
+@@ -71,8 +73,7 @@ public class GlowHelper {
+       if (var1 != null) {
+          teamDisplay.playerColor(var1);
+       } else {
+-         LinkedList<NamedTextColor> var4 = new LinkedList<>(NamedTextColor.NAMES.values());
+-         teamDisplay.playerColor(var4.get(RANDOM.nextInt(var4.size())));
++         teamDisplay.playerColor(COLORS[RANDOM.nextInt(COLORS.length)]); // Luma - Minor cleanup
+       }
+    }
+    // Luma end - Folia support
+diff --git a/me/hexedhero/pp/utils/VersionHelper.java b/me/hexedhero/pp/utils/VersionHelper.java
+index 27f164f..0b16f6b 100644
+--- a/me/hexedhero/pp/utils/VersionHelper.java
++++ b/me/hexedhero/pp/utils/VersionHelper.java
+@@ -56,8 +56,10 @@ public class VersionHelper {
+    }
+ 
+    public static boolean isPaper() {
++      // Luma start - Unnecessary paper check
+       //return IS_PAPER;
+-      return true; // Luma - Unnecessary paper check
++      return true;
++      // Luma end - Unnecessary paper check
+    }
+ 
+    public static boolean isRunningVersionSameOrNewer(String var0) {
