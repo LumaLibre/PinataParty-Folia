@@ -1,0 +1,46 @@
+diff --git a/me/hexedhero/pp/PinataParty.java b/me/hexedhero/pp/PinataParty.java
+index b02fe41..f4f9368 100644
+--- a/me/hexedhero/pp/PinataParty.java
++++ b/me/hexedhero/pp/PinataParty.java
+@@ -390,8 +390,12 @@ public class PinataParty extends JavaPlugin {
+             new CommandReader("player-vote").dispatchCommands(var4, false, null);
+             new CumulativeReader(var4).check();
+             if (!Common.isPlayerVanished(var4)) {
+-               new PluginSound("vote-effects.sound").send(var4, true);
+-               new PluginParticle("vote-effects.particle").send(var4.getLocation().add(0.0, 1.0, 0.0));
++               // Luma start - Folia support
++               ScheduleHelper.runTask(var4, () -> {
++                  new PluginSound("vote-effects.sound").send(var4, true);
++                  new PluginParticle("vote-effects.particle").send(var4.getLocation().add(0.0, 1.0, 0.0));
++               });
++               // Luma end - Folia support
+             }
+          }
+       }
+diff --git a/me/hexedhero/pp/objects/CumulativeReader.java b/me/hexedhero/pp/objects/CumulativeReader.java
+index 245628a..7f12163 100644
+--- a/me/hexedhero/pp/objects/CumulativeReader.java
++++ b/me/hexedhero/pp/objects/CumulativeReader.java
+@@ -6,6 +6,7 @@ import java.util.List;
+ import java.util.Set;
+ import me.hexedhero.pp.PinataParty;
+ import me.hexedhero.pp.enums.ECumulativeType;
++import me.hexedhero.pp.utils.ScheduleHelper;
+ import org.bukkit.Bukkit;
+ import org.bukkit.configuration.ConfigurationSection;
+ import org.bukkit.entity.Player;
+@@ -63,8 +64,12 @@ public class CumulativeReader {
+ 
+       public void dispatchCommands(Player var1) {
+          if (var1 == null || this.permission.isEmpty() || var1.hasPermission(this.permission)) {
+-            this.commands
+-               .forEach(var1x -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), PinataParty.getInstance().getPlaceholderParser().parse(var1, var1x)));
++            // Luma start - Folia support
++            ScheduleHelper.runTaskGlobal(() -> {
++               this.commands
++                       .forEach(var1x -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), PinataParty.getInstance().getPlaceholderParser().parse(var1, var1x)));
++            });
++            // Luma end - Folia support
+          }
+       }
+    }
